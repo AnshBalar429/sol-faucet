@@ -15,11 +15,9 @@ import { clusterApiUrl } from "@solana/web3.js"
 
 
 export default function WalletContextProvider({ children }: { children: React.ReactNode }) {
-  // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
   const network = WalletAdapterNetwork.Devnet
 
-  // You can also provide a custom RPC endpoint.
-  const endpoint = useMemo(() => clusterApiUrl(network), [network])
+  const endpoint = process.env.NEXT_PUBLIC_RPC_URL || clusterApiUrl(network)
 
   const wallets = useMemo(
     () => [
@@ -28,7 +26,6 @@ export default function WalletContextProvider({ children }: { children: React.Re
       new TorusWalletAdapter(),
       new LedgerWalletAdapter(),
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [network],
   )
 
