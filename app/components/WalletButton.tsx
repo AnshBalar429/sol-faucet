@@ -5,7 +5,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui"
 import { WalletIcon, CheckIcon } from 'lucide-react'
 
 export function WalletButton() {
-  const { connected, publicKey } = useWallet()
+  const { connected, publicKey } = useWallet()    
 
   if (connected && publicKey) {
     return (
@@ -22,7 +22,7 @@ export function WalletButton() {
   }
 
   return (
-    <div className="wallet-adapter-button-trigger">
+    <div className="flex items-center justify-center">
       <WalletMultiButton
         style={{
           background: "linear-gradient(to right, #06b6d4, #2563eb)",
@@ -34,7 +34,7 @@ export function WalletButton() {
           boxShadow: "0 10px 15px -3px rgba(6, 182, 212, 0.1)",
         }}
       >
-        <WalletIcon className="w-5 h-5 mr-2" />
+        {/* <WalletIcon className="w-5 h-5 mr-2" /> */}
         Connect Wallet
       </WalletMultiButton>
     </div>
