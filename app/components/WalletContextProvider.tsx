@@ -12,12 +12,11 @@ import {
   LedgerWalletAdapter,
 } from "@solana/wallet-adapter-wallets"
 import { clusterApiUrl } from "@solana/web3.js"
+import "@solana/wallet-adapter-react-ui/styles.css";
 
 
 export default function WalletContextProvider({ children }: { children: React.ReactNode }) {
   const network = WalletAdapterNetwork.Devnet
-
-  const endpoint = process.env.NEXT_PUBLIC_RPC_URL || clusterApiUrl(network)
 
   const wallets = useMemo(
     () => [
@@ -30,8 +29,8 @@ export default function WalletContextProvider({ children }: { children: React.Re
   )
 
   return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
+    <ConnectionProvider endpoint={"https://solana-devnet.g.alchemy.com/v2/8t2I-J5xDw6ybv7oHQMaC"}>
+      <WalletProvider wallets={wallets}>
         <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
