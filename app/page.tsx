@@ -24,22 +24,49 @@ export default function SolanaFaucet() {
   const { connected, publicKey } = useWallet()
   const { connection } = useConnection()
 
+  useEffect(() => {
+    const requests = getStoredRequests()
+    setRequestCount(requests.length)
+  }, [])
 
+  const getStoredRequests = (): AirdropRequest[] => {
+    if (typeof window === "undefined") return []
+    const stored = localStorage.getItem("solana-faucet-requests")
+    if (!stored) return []
+
+    const requests: AirdropRequest[] = JSON.parse(stored)
+    const eightHoursAgo = Date.now() - 8 * 60 * 60 * 1000
+
+    const validRequests = requests.filter((req) => req.timestamp > eightHoursAgo)
+    
+    localStorage.setItem("solana-faucet-requests", JSON.stringify(validRequests))
+
+    return validRequests
+  }
+
+  const addRequest = (amount: number) => {
+    const requests = getStoredRequests()
+    requests.push({ timestamp: Date.now(), amount })
+    localStorage.setItem("solana-faucet-requests", JSON.stringify(requests))
+    setRequestCount(requests.length)
+  }
+
+  const canMakeRequest = (): boolean => {
+    return requestCount < 2;
+  }
 
   const handleConfirmAirdrop = async () => {
-    if (!selectedAmount || !publicKey) return
+    if (!canMakeRequest() || !selectedAmount || !publicKey) return
 
     setIsLoading(true)
-    console.log("Requesting airdrop for:", selectedAmount, "SOL")
 
     try {
       const lamports = selectedAmount * LAMPORTS_PER_SOL
 
       const result = await connection.requestAirdrop(publicKey,lamports);
       console.log("Airdrop result:", result)
-    
 
-      // addRequest(selectedAmount)
+      addRequest(selectedAmount)
       setToast({
         message: `Successfully airdropped ${selectedAmount} SOL!`,
         type: "success",
@@ -122,11 +149,12 @@ export default function SolanaFaucet() {
             {/* Confirm Button */}
             <button
               onClick={handleConfirmAirdrop}
-              disabled={isLoading}
-              className={`w-full py-4 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-all ${ !isLoading
+              disabled={!canMakeRequest() || isLoading}
+              className={`w-full py-4 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-all ${
+                canMakeRequest() && !isLoading
                   ? "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25"
                   : "bg-slate-600/50 text-slate-400 cursor-not-allowed"
-                }`}
+              }`}
             >
               {isLoading ? (
                 <>
@@ -144,8 +172,8 @@ export default function SolanaFaucet() {
         </div>
 
         {/* Footer */}
-        <div className="text-center text-slate-400 text-sm">
-          <p className="mb-2">This tool is designed for development purposes and does not distribute mainnet SOL.</p>
+        <div className="text-center text-slate-400 text-sm">  
+          <p className="mb-2">This tool is designed for development purposes and does not distribute mainnet SOL.</p> 
         </div>
       </div>
 
